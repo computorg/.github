@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question about a submission or review
+    url: mailto:contact@computo-journal.org
+    about: Contact the editorial team before opening an issue.
+  - name: Author guidelines
+    url: https://computo-journal.org/site/guidelines-authors.html
+    about: Read the author submission guidelines.
+  - name: Reviewer guidelines
+    url: https://computo-journal.org/site/guidelines-reviewers.html
+    about: Read the reviewer guidelines.
