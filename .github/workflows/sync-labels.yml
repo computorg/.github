@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - .github/labels.yml
+      - .github/labels.json
       - .github/workflows/sync-labels.yml
   schedule:
     - cron: "0 6 * * 1"
@@ -28,11 +28,19 @@ jobs:
   sync:
     needs: list-repos
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.LABEL_SYNC_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: EndBug/label-sync@v2
-        with:
-          config-file: .github/labels.yml
-          token: ${{ secrets.LABEL_SYNC_TOKEN }}
-          repos: ${{ needs.list-repos.outputs.repos }}
-          delete-other-labels: false
+      - name: Create or update labels on every target repo
+        run: |
+          IFS=',' read -ra REPOS <<< "${{ needs.list-repos.outputs.repos }}"
+          while IFS= read -r label; do
+            name=$(jq -r '.name' <<< "$label")
+            color=$(jq -r '.color' <<< "$label")
+            description=$(jq -r '.description' <<< "$label")
+            for repo in "${REPOS[@]}"; do
+              echo "Syncing label '$name' on computorg/$repo"
+              gh label create "$name" --repo "computorg/$repo" --color "$color" --description "$description" --force
+            done
+          done < <(jq -c '.[]' .github/labels.json)
