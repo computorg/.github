@@ -1,7 +1,7 @@
 ---
 name: Production tracking
 about: Checklist for the 3 phases of manuscript production (acceptance, production start-up, final publication)
-title: "[Production] "
+title: "[Production Issue] "
 labels: production
 assignees: ""
 ---
