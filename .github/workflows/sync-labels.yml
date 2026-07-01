@@ -1,0 +1,38 @@
+name: Sync editorial labels
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/labels.yml
+      - .github/workflows/sync-labels.yml
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  list-repos:
+    runs-on: ubuntu-latest
+    outputs:
+      repos: ${{ steps.list.outputs.repos }}
+    steps:
+      - name: List public editorial repos
+        id: list
+        env:
+          GH_TOKEN: ${{ secrets.LABEL_SYNC_TOKEN }}
+        run: |
+          repos=$(gh repo list computorg --limit 200 --json name,isPrivate \
+            --jq '[.[] | select(.isPrivate == false) | select(.name == "computo-quarto-extension" or (.name | test("^(template-computo-|published-)"))) | .name] | join(",")')
+          echo "repos=$repos" >> "$GITHUB_OUTPUT"
+
+  sync:
+    needs: list-repos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EndBug/label-sync@v2
+        with:
+          config-file: .github/labels.yml
+          token: ${{ secrets.LABEL_SYNC_TOKEN }}
+          repos: ${{ needs.list-repos.outputs.repos }}
+          delete-other-labels: false
