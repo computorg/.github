@@ -36,6 +36,8 @@
 /published-*.ipynb
 /published-*_files/
 /published-*_cache/
+# legacy source document named content.qmd
+content_files/
 *.aux
 *.log
 *.toc
